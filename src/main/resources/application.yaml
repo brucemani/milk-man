@@ -1,0 +1,32 @@
+server:
+  port: 7003
+app:
+  mail: rajamanikandanreg32@gmail.com
+  baseUrl: http://localhost:7003/api
+  otpLen: 6
+  otpExpire: 5
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/milkDb?createDatabaseIfNotExist=true
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        generate_statistics: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: springbootcommon@gmail.com
+    password: paxqexbobtfsysir
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
