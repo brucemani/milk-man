@@ -67,4 +67,8 @@ public class AccountServiceImpl extends CommonUtil implements AccountService {
         requestBuilder.setAccountList(accountList);
         return accountReportService.prepareReport(requestBuilder);
     }
+
+    public void test(){
+
+    }
 }
