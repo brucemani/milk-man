@@ -45,6 +45,10 @@ public class Customer implements Serializable {
     private String customerName;
     @NotNull(message = "Customer email shouldn't null or empty!")
     private String customerEmail;
+    @NotNull(message = "Customer mobile shouldn't be null or empty!")
+    private String customerMobile;
+    @NotNull(message = "Milk rate shouldn't null!")
+    private Double ratePerLit;
     @Enumerated(ORDINAL)
     private Gender gender;
     @Embedded
