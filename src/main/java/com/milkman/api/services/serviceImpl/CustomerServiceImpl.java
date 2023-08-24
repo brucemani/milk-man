@@ -5,6 +5,7 @@ import com.milkman.api.repository.CustomerRepository;
 import com.milkman.api.services.service.CustomerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,6 +57,11 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteById(Long id) {
         repository.deleteById(id);
         log.info("%s Given customer has been deleted.");
+    }
+
+    @Override
+    public Optional<Customer> findCustomerByEmail(@NonNull String email) {
+        return this.repository.findByCustomerEmail(email);
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author: kchid
@@ -17,4 +18,5 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findAllByCreateDateBetweenOrderByCreateDate(@NonNull final Date fromDate, @NonNull final Date toDate);
+    List<Account> findAllByCustomerIdAndCreateDateBetween(@NonNull Long customerId,@NonNull final Date fromDate, @NonNull final Date toDate);
 }

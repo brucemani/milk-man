@@ -2,6 +2,8 @@ package com.milkman.api.services.service;
 
 import com.milkman.api.model.Customer;
 
+import java.util.Optional;
+
 /**
  * @Author: kchid
  * @Project: milky-man
@@ -10,4 +12,5 @@ import com.milkman.api.model.Customer;
  */
 public interface CustomerService extends CommonService<Customer,Long>{
     Boolean isEmailAlreadyRegister(String email);
+    Optional<Customer> findCustomerByEmail(String email);
 }

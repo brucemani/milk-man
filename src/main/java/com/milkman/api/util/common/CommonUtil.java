@@ -29,6 +29,7 @@ import static java.util.stream.LongStream.range;
 public class CommonUtil {
     public static final String MOBILE_REGEX = "^(?:(?:\\+|0{0,2})91(\\s*[\\-]\\s*)?|[0]?)?[789]\\d{9}$";
     public static final String OTP_REGEX = "(\\d{6})";
+    public static final String BEARER="Bearer ";
     @Value("${app.baseUrl}")
     private String BASE;
 

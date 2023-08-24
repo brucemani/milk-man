@@ -58,7 +58,7 @@ public class AccountReportService extends CommonUtil {
                             .date(new SimpleDateFormat(LOCAL_DATE.getPattern()).format(map.getCreateDate()))
                             .morningLt(map.getAmLiter() == null ? 0d : map.getAmLiter())
                             .eveningLt(map.getPmLiter() == null ? 0d : map.getPmLiter())
-                            .totalLt((map.getAmLiter() == null ? 0 : map.getAmLiter()) + (map.getPmLiter() == null ? 0 : map.getPmLiter()))
+                            .totalLt((map.getAmLiter() == null ? 0d : map.getAmLiter()) + (map.getPmLiter() == null ? 0d : map.getPmLiter()))
                             .build()).toList();
                     result.put(key, collect);
                 });

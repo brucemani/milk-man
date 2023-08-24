@@ -7,13 +7,20 @@ import com.milkman.api.repository.AccountRepository;
 import com.milkman.api.services.reports.AccountReportService;
 import com.milkman.api.services.service.AccountService;
 import com.milkman.api.util.common.CommonUtil;
+import com.milkman.api.util.enums.DateFormatPatterns;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
+import static com.milkman.api.util.enums.DateFormatPatterns.LOCAL_DATE;
+import static java.time.LocalDate.now;
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 /**
  * @Author: kchid
@@ -68,7 +75,13 @@ public class AccountServiceImpl extends CommonUtil implements AccountService {
         return accountReportService.prepareReport(requestBuilder);
     }
 
-    public void test(){
-
+    @Override
+    public Account hasAlreadyEntry(AccountRequestBuilder requestBuilder) {
+        final List<Account> result = this.repository.findAllByCustomerIdAndCreateDateBetween(requestBuilder.getCustomerId(), utilDateConvertor.apply(requestBuilder.getFrom()), utilDateConvertor.apply(requestBuilder.getTo()));
+        if (result.size() == 1) {
+            return result.get(0);
+        }
+        log.error("More than one record occur!");
+        throw new RuntimeException("More than one record occur!");
     }
 }

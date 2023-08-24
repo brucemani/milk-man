@@ -4,6 +4,8 @@ import com.milkman.api.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * @Author: kchid
  * @Project: milky-man
@@ -13,4 +15,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer,Long> {
     Integer countCustomersByCustomerEmail(String email);
+    Optional<Customer> findByCustomerEmail(String email);
 }

@@ -5,6 +5,7 @@ import com.milkman.api.dto.ReportResponse;
 import com.milkman.api.model.Account;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author: kchid
@@ -17,4 +18,6 @@ public interface AccountService extends CommonService<Account,Long> {
     List<Account> findAllAccountByDate(AccountRequestBuilder request);
 
     ReportResponse fetchReport(AccountRequestBuilder requestBuilder);
+
+    Account hasAlreadyEntry(AccountRequestBuilder requestBuilder);
 }
