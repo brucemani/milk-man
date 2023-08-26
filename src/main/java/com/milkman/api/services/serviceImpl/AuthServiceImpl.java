@@ -1,12 +1,12 @@
 package com.milkman.api.services.serviceImpl;
 
-import com.google.gson.Gson;
 import com.milkman.api.dto.AuthRequest;
 import com.milkman.api.dto.AuthResponse;
 import com.milkman.api.model.Customer;
 import com.milkman.api.security.JwtRepository;
-import com.milkman.api.services.service.CustomerService;
 import com.milkman.api.services.service.AuthService;
+import com.milkman.api.services.service.CustomerService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -14,9 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import static java.util.Collections.singletonMap;
-import static org.springframework.http.ResponseEntity.ok;
 
 /**
  * @Author: kchid
@@ -27,7 +24,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class LoginServiceImpl implements AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final CustomerService customerService;
     private final AuthenticationManager authenticationManager;
@@ -41,5 +38,10 @@ public class LoginServiceImpl implements AuthService {
             return jwtRepository.generateAccessToken.apply(authRequest);
         }
         throw new UsernameNotFoundException("Invalid user!");
+    }
+
+    @Override
+    public AuthResponse refreshToken(@NonNull AuthResponse req, @NonNull HttpServletRequest request) {
+        return this.jwtRepository.refreshToken.apply(req, request);
     }
 }

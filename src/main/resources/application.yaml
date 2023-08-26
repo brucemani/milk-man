@@ -9,6 +9,7 @@ app:
     urls: /api/validation,/api/auth
   jwt:
     secret-key: "$2a$12$L1E2yksxbSr9gVwb/WZJc.9w5Nc5beROD3nL8ZbG8R36ENhk9HbOu"
+    expire: 1
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

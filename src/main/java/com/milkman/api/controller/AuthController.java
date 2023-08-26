@@ -6,7 +6,6 @@ import com.milkman.api.dto.ResponseBuilder;
 import com.milkman.api.model.Customer;
 import com.milkman.api.services.service.AuthService;
 import com.milkman.api.services.service.CustomerService;
-import com.milkman.api.util.enums.Status;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -44,4 +43,13 @@ public class AuthController {
     public ResponseEntity<ResponseBuilder> register(@RequestBody @Valid @NonNull Customer customer) {
         return ok(makeResponse(customerService.save(customer), CREATED.getStatus(), CREATED.getMessage()));
     }
+
+    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBuilder> refreshToken(@RequestBody @Valid @NonNull AuthResponse req, HttpServletRequest request) {
+        return ok(makeResponse(authService.refreshToken(req, request), SUCCESS.getStatus(), SUCCESS.getMessage()));
+    }
+
+//    @PostMapping(path = "/forgot",consumes = APPLICATION_JSON_VALUE,produces = APPLICATION_JSON_VALUE)
+//    public ResponseEntity<ResponseBuilder> forgotPassword(@RequestBody @Valid @NonNull )
+
 }

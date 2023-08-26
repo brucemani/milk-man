@@ -1,11 +1,9 @@
 package com.milkman.api.security;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.*;
 import com.google.gson.Gson;
-
 import com.milkman.api.dto.AuthRequest;
 import com.milkman.api.dto.AuthResponse;
 import com.milkman.api.dto.TokenInfo;
@@ -13,33 +11,37 @@ import com.milkman.api.model.Customer;
 import com.milkman.api.model.Role;
 import com.milkman.api.services.service.CustomerService;
 import com.milkman.api.services.service.RoleService;
+import com.milkman.api.util.enums.Privilege;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static com.auth0.jwt.JWT.create;
 import static com.auth0.jwt.JWT.require;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC256;
 import static com.milkman.api.util.common.CommonUtil.BEARER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDateTime.now;
-import static java.util.Calendar.*;
-import static java.util.stream.Collectors.toList;
+import static java.util.Calendar.HOUR;
+import static java.util.Calendar.getInstance;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
+import static org.springframework.security.crypto.bcrypt.BCrypt.checkpw;
 
 @Component
 @Slf4j
 public class JwtRepository {
     @Value("${app.jwt.secret-key}")
     private String secret;
+    @Value("${app.jwt.expire}")
+    private Integer jwtExpireHours;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
@@ -47,10 +49,17 @@ public class JwtRepository {
     @Autowired
     private RoleService roleService;
 
-    private static Date getAccessTokenExpire() {
+    private Date getAccessTokenExpire() {
         final Calendar calendar = getInstance();
         calendar.setTime(new Date());
-        calendar.add(HOUR, 1);
+        calendar.add(HOUR, this.jwtExpireHours);
+        return calendar.getTime();
+    }
+
+    private Date getRefreshTokenExpire() {
+        final Calendar calendar = getInstance();
+        calendar.setTime(new Date());
+        calendar.add(HOUR, this.jwtExpireHours + 1);
         return calendar.getTime();
     }
 
@@ -103,26 +112,59 @@ public class JwtRepository {
                 log.error("Incorrect user name!");
                 throw new RuntimeException("Incorrect user name!");
             }
-            if (!BCrypt.checkpw(req.getPassword(), customer.getCustomerPassword())) {
+            if (!checkpw(req.getPassword(), customer.getCustomerPassword())) {
                 log.error("Incorrect password!");
                 throw new RuntimeException("Incorrect password!");
             }
             final Set<String> roles = role.getRoleList().stream().filter(Objects::nonNull).collect(toSet());
             final TokenInfo userInfo = TokenInfo.builder().provider(req.getRequest().getServletPath()).userName(customer.getCustomerEmail()).roles(roles).build();
             final Algorithm algorithm = HMAC256(secret);
-            final Date expire = getAccessTokenExpire();
-            String access_token = JWT.create()
+            final Date access_token_expire = getAccessTokenExpire();
+            final Date refresh_token_expire = getRefreshTokenExpire();
+            final List<String> privilegeList = role.getPrivilegeList().stream().map(Privilege::name).toList();
+            final String access_token = create()
                     .withSubject(new Gson().toJson(userInfo))
                     .withIssuedAt(new Date())
-                    .withExpiresAt(expire)
+                    .withExpiresAt(access_token_expire)
                     .withIssuer(req.getRequest().getRequestURL().toString())
-                    .withClaim("roles", role.getRoleList().parallelStream().filter(Objects::nonNull).collect(toList())).sign(algorithm);
-            return AuthResponse.builder().userName(req.getUserName()).message("Authenticate successful").accessToken(BEARER.concat(access_token)).createAt(now().toString()).expireDate(expire.toString()).build();
+                    .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
+            final String refresh_token = create()
+                    .withSubject(new Gson().toJson(userInfo))
+                    .withIssuedAt(new Date())
+                    .withExpiresAt(refresh_token_expire)
+                    .withIssuer(req.getRequest().getRequestURL().toString())
+                    .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
+            return AuthResponse.builder().userId(customer.getCustomerId()).role(new ArrayList<>(roles)).privilege(privilegeList).userName(customer.getCustomerEmail()).message("Authenticate successful").accessToken(BEARER.concat(access_token)).refreshToken(BEARER.concat(refresh_token)).createAt(now().toString()).expireDate(access_token_expire.toString()).build();
         } catch (Exception ex) {
             ex.printStackTrace();
             log.error(ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         }
+    };
+
+    public final BiFunction<AuthResponse, HttpServletRequest, AuthResponse> refreshToken = (auth, req) -> {
+        final TokenInfo tokenInfo = ofNullable(this.extractTokenInfo.apply(auth.getRefreshToken())).orElseThrow(() -> new NullPointerException("Got exception while extract jwt token!"));
+        final Customer customer = this.customerService.findCustomerByEmail(tokenInfo.getUserName()).orElseGet(Customer::new);
+        final Role role = this.roleService.findRoleByCustomerId(customer.getCustomerId()).orElseGet(Role::new);
+        final Set<String> roles = role.getRoleList().stream().filter(Objects::nonNull).collect(toSet());
+        final TokenInfo userInfo = TokenInfo.builder().provider(req.getServletPath()).userName(customer.getCustomerEmail()).roles(roles).build();
+        final Algorithm algorithm = HMAC256(secret);
+        final Date access_token_expire = getAccessTokenExpire();
+        final Date refresh_token_expire = getRefreshTokenExpire();
+        final List<String> privilegeList = role.getPrivilegeList().stream().map(Privilege::name).toList();
+        final String access_token = create()
+                .withSubject(new Gson().toJson(userInfo))
+                .withIssuedAt(new Date())
+                .withExpiresAt(access_token_expire)
+                .withIssuer(req.getRequestURL().toString())
+                .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
+        final String refresh_token = create()
+                .withSubject(new Gson().toJson(userInfo))
+                .withIssuedAt(new Date())
+                .withExpiresAt(refresh_token_expire)
+                .withIssuer(req.getRequestURL().toString())
+                .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
+        return AuthResponse.builder().userId(customer.getCustomerId()).role(new ArrayList<>(roles)).privilege(privilegeList).userName(customer.getCustomerEmail()).message("Authenticate successful").accessToken(BEARER.concat(access_token)).refreshToken(BEARER.concat(refresh_token)).createAt(now().toString()).expireDate(access_token_expire.toString()).build();
     };
 
 

@@ -2,6 +2,7 @@ package com.milkman.api.services.service;
 
 import com.milkman.api.dto.AuthRequest;
 import com.milkman.api.dto.AuthResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @Author: kchid
@@ -11,4 +12,6 @@ import com.milkman.api.dto.AuthResponse;
  */
 public interface AuthService {
     AuthResponse login(AuthRequest requestBuilder);
+
+    AuthResponse refreshToken(AuthResponse req, HttpServletRequest httpServletRequest);
 }
