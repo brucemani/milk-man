@@ -1,16 +1,25 @@
 package com.milkman.api.services.serviceImpl;
 
 import com.milkman.api.model.Customer;
+import com.milkman.api.model.Role;
 import com.milkman.api.repository.CustomerRepository;
 import com.milkman.api.services.service.CustomerService;
+import com.milkman.api.services.service.RoleService;
+import com.milkman.api.util.enums.Privilege;
+import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.milkman.api.util.enums.Privilege.ALL;
+import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -25,6 +34,17 @@ import static java.util.Objects.requireNonNull;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository repository;
+    private final RoleService roleService;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    private void ifNotCreateRole(@NonNull Customer customer) {
+        final Role role = this.roleService.findRoleByCustomerId(customer.getCustomerId()).orElseGet(Role::new);
+        if (isNull(role.getRoleId())) {
+            final Role buildRole = Role.builder().roleList(Set.of("USER")).privilegeList(List.of(ALL)).customerId(customer.getCustomerId()).build();
+            final Role save = this.roleService.save(buildRole);
+            customer.setRoleId(save.getRoleId());
+        }
+    }
 
     @Override
     public Customer save(Customer obj) {
@@ -32,7 +52,10 @@ public class CustomerServiceImpl implements CustomerService {
             log.error("%s given email already register.".formatted(obj.getCustomerEmail()));
             throw new RuntimeException("%s given email already register.".formatted(obj.getCustomerEmail()));
         }
-        return repository.save(obj);
+        obj.setCustomerPassword(this.passwordEncoder.encode(obj.getCustomerPassword()));
+        final Customer customer = this.repository.save(obj);
+        this.ifNotCreateRole(customer);
+        return customer;
     }
 
     @Override

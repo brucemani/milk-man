@@ -31,8 +31,7 @@ import static com.auth0.jwt.algorithms.Algorithm.HMAC256;
 import static com.milkman.api.util.common.CommonUtil.BEARER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDateTime.now;
-import static java.util.Calendar.MINUTE;
-import static java.util.Calendar.getInstance;
+import static java.util.Calendar.*;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -51,7 +50,7 @@ public class JwtRepository {
     private static Date getAccessTokenExpire() {
         final Calendar calendar = getInstance();
         calendar.setTime(new Date());
-        calendar.add(MINUTE, 1);
+        calendar.add(HOUR, 1);
         return calendar.getTime();
     }
 

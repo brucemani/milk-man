@@ -5,6 +5,8 @@ app:
   baseUrl: http://localhost:7003/api
   otpLen: 6
   otpExpire: 5
+  auth:
+    urls: /api/validation,/api/auth
   jwt:
     secret-key: "$2a$12$L1E2yksxbSr9gVwb/WZJc.9w5Nc5beROD3nL8ZbG8R36ENhk9HbOu"
 spring:

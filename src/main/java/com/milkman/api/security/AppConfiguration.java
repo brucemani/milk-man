@@ -22,21 +22,23 @@ public class AppConfiguration {
 
     private final CustomUserDetailsService customUserDetailsService;
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return this.customUserDetailsService;
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public BCryptPasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(this.userDetailsService());
-        authenticationProvider.setPasswordEncoder(this.passwordEncoder());
+        authenticationProvider.setPasswordEncoder(this.passwordEncoder);
         return authenticationProvider;
     }
 

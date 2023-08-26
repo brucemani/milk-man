@@ -2,6 +2,7 @@ package com.milkman.api.model;
 
 import com.milkman.api.util.enums.Gender;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -49,17 +50,13 @@ public class Customer implements Serializable {
     private String customerPassword;
     @NotNull(message = "Customer mobile shouldn't be null or empty!")
     private String customerMobile;
-
-    @NotNull(message = "Role shouldn't null!")
-    private String roleId;
-
-    @NotNull(message = "Milk rate shouldn't null!")
+    private Long roleId;
     private Double ratePerLit;
     @Enumerated(ORDINAL)
     private Gender gender;
     @Embedded
     private Address address;
-    private Boolean isAccountActive;
+    private Boolean isAccountActive=false;
     private Boolean isUseDefaultPass;
     @CreatedDate
     private Date createDate;

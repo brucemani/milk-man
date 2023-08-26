@@ -31,6 +31,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
  */
 @Getter
 @Setter
+@Builder
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
