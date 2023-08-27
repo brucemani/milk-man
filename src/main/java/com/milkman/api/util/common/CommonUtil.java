@@ -1,6 +1,8 @@
 package com.milkman.api.util.common;
 
+import com.milkman.api.dto.PasswordRequest;
 import com.milkman.api.dto.UrlRequestBuilder;
+import com.milkman.api.model.Customer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,15 +10,19 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.milkman.api.util.enums.DateFormatPatterns.LOCAL_DATE;
+import static java.lang.Character.*;
 import static java.time.ZoneId.systemDefault;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.LongStream.range;
+import static org.springframework.security.crypto.bcrypt.BCrypt.checkpw;
 
 /**
  * @Author: kchid
@@ -29,7 +35,9 @@ import static java.util.stream.LongStream.range;
 public class CommonUtil {
     public static final String MOBILE_REGEX = "^(?:(?:\\+|0{0,2})91(\\s*[\\-]\\s*)?|[0]?)?[789]\\d{9}$";
     public static final String OTP_REGEX = "(\\d{6})";
-    public static final String BEARER="Bearer ";
+
+    private static final List<Character> PASSWORD_STRENGTH_CHECK_LIST = Arrays.asList('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+');
+    public static final String BEARER = "Bearer ";
     @Value("${app.baseUrl}")
     private String BASE;
 
@@ -80,7 +88,44 @@ public class CommonUtil {
         }
     };
 
-    public final Function<Date, LocalDate> dateToLocalDate= date -> date.toInstant().atZone(systemDefault()).toLocalDate();
+    public final Function<Date, LocalDate> dateToLocalDate = date -> date.toInstant().atZone(systemDefault()).toLocalDate();
 
 
+    private final Predicate<String> passwordStrengthChecker = pass -> {
+        boolean isSpecialChar = false;
+        boolean isCapitalChar = false;
+        boolean isSmallChar = false;
+        boolean isDigit = false;
+        final char[] arr = pass.toCharArray();
+        for (char c : arr) {
+            if (PASSWORD_STRENGTH_CHECK_LIST.contains(c)) {
+                isSpecialChar = true;
+                continue;
+            }
+            if (isDigit(c)) {
+                isDigit = true;
+                continue;
+            }
+            if (isUpperCase(c)) {
+                isCapitalChar = true;
+
+                continue;
+            }
+            if (isLowerCase(c)) {
+                isSmallChar = true;
+            }
+        }
+        return arr.length > 7 && isSpecialChar && isDigit && isCapitalChar && isSmallChar;
+    };
+
+    public final BiConsumer<PasswordRequest, Customer> validatePassword = (req, cus) -> {
+        if (!req.getNewPassword().equalsIgnoreCase(req.getConfirmPassword())) {
+            log.error("New password and current password is not match!");
+            throw new RuntimeException("New password and current password is not match!");
+        }
+        if (checkpw(req.getCurrentPassword(), cus.getCustomerPassword())) {
+            log.error("Current password shouldn't occur last password!");
+            throw new RuntimeException("Current password shouldn't occur last password!");
+        }
+    };
 }

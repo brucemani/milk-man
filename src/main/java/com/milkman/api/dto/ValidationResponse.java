@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ValidationResponse {
+    private Long userId;
     private String message;
     private Integer status;
     private String error;

@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface CustomerService extends CommonService<Customer,Long>{
     Boolean isEmailAlreadyRegister(String email);
     Optional<Customer> findCustomerByEmail(String email);
+    void updatePassword(Long userId, String newPassword);
 }

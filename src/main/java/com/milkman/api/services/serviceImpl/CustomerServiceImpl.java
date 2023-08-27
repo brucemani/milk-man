@@ -5,8 +5,7 @@ import com.milkman.api.model.Role;
 import com.milkman.api.repository.CustomerRepository;
 import com.milkman.api.services.service.CustomerService;
 import com.milkman.api.services.service.RoleService;
-import com.milkman.api.util.enums.Privilege;
-import io.micrometer.common.util.StringUtils;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -14,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,6 +29,7 @@ import static java.util.Objects.requireNonNull;
 @Service
 @Slf4j
 @AllArgsConstructor
+@Transactional
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository repository;
@@ -90,5 +89,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Boolean isEmailAlreadyRegister(String email) {
         return repository.countCustomersByCustomerEmail(email) > 0;
+    }
+
+    @Override
+    public void updatePassword(@NonNull Long userId, @NonNull String newPassword) {
+        final Customer customer = this.findById(userId).orElseThrow(() -> new NullPointerException("User not exist!"));
+        customer.setCustomerPassword(passwordEncoder.encode(newPassword));
+        this.updateById(customer);
+        log.info("Password updated.");
     }
 }

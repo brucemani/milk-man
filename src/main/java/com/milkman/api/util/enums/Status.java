@@ -15,6 +15,7 @@ public enum Status {
     NOT_FOUND("Record not found.", HttpStatus.NOT_FOUND.value()),
     UPDATE("Record updated.", HttpStatus.ACCEPTED.value()),
     DELETE("Record deleted.", HttpStatus.ACCEPTED.value()),
+    ACCESS_DENIED("Access denied.", HttpStatus.FORBIDDEN.value()),
     VALIDATION_SUCCESS("Validation success.", HttpStatus.OK.value());
 
     private final String message;

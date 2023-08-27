@@ -3,10 +3,9 @@ package com.milkman.api.security;
 
 import com.milkman.api.model.Customer;
 import com.milkman.api.model.Role;
-import com.milkman.api.repository.CustomerRepository;
-import com.milkman.api.repository.RoleRepository;
 import com.milkman.api.services.service.CustomerService;
 import com.milkman.api.services.service.RoleService;
+import com.milkman.api.util.enums.Privilege;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,12 +31,23 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final Customer customer = this.findCustomerByEmail(email);
+//        if (customer.getIsAccountActive() == null || !customer.getIsAccountActive()) {
+//            log.error("Account is not activated!");
+//            throw new AccessDeniedException("Account is not activated!");
+//        }
         final Role role = this.findRoleByCustomerId(customer.getCustomerId());
         final List<SimpleGrantedAuthority> authorities = role.getRoleList()
                 .stream()
                 .filter(Objects::nonNull)
                 .map(m -> new SimpleGrantedAuthority("ROLE_".concat(m)))
                 .collect(toList());
+        final List<SimpleGrantedAuthority> authorityList = role.getPrivilegeList()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Privilege::name)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+        authorities.addAll(authorityList);
         return new User(customer.getCustomerEmail(), customer.getCustomerPassword(), authorities);
     }
 

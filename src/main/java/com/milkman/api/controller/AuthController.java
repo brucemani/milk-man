@@ -50,6 +50,8 @@ public class AuthController {
     }
 
 //    @PostMapping(path = "/forgot",consumes = APPLICATION_JSON_VALUE,produces = APPLICATION_JSON_VALUE)
-//    public ResponseEntity<ResponseBuilder> forgotPassword(@RequestBody @Valid @NonNull )
+//    public ResponseEntity<ResponseBuilder> forgotPassword(@RequestBody @Valid @NonNull PasswordRequest request){
+//
+//    }
 
 }

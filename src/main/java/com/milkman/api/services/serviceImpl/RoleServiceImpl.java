@@ -3,6 +3,7 @@ package com.milkman.api.services.serviceImpl;
 import com.milkman.api.model.Role;
 import com.milkman.api.repository.RoleRepository;
 import com.milkman.api.services.service.RoleService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -20,6 +21,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 @Slf4j
+@Transactional
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;

@@ -3,9 +3,12 @@ package com.milkman.api.services.serviceImpl;
 import com.milkman.api.dto.*;
 import com.milkman.api.mail.MailSenderService;
 import com.milkman.api.model.ApplicationValidation;
+import com.milkman.api.model.Customer;
 import com.milkman.api.repository.ApplicationValidationRepository;
 import com.milkman.api.services.service.ApplicationValidationService;
+import com.milkman.api.services.service.CustomerService;
 import com.milkman.api.util.common.CommonUtil;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -39,6 +42,7 @@ import static java.util.Objects.requireNonNull;
 @Service
 @AllArgsConstructor
 @Slf4j
+@Transactional
 public class ApplicationValidationServiceImpl implements ApplicationValidationService {
 
     private final ApplicationValidationRepository repository;
@@ -46,6 +50,8 @@ public class ApplicationValidationServiceImpl implements ApplicationValidationSe
     private final MailSenderService mailSenderService;
 
     private final CommonUtil commonUtil;
+
+    private final CustomerService customerService;
 
     @Override
     public ApplicationValidation save(@NonNull ApplicationValidation obj) {
@@ -119,8 +125,10 @@ public class ApplicationValidationServiceImpl implements ApplicationValidationSe
         }
         result.setIsVerified(true);
         this.save(result);
+        final Customer customer = this.customerService.findCustomerByEmail(result.getIdentity()).orElseThrow(() -> new NullPointerException("Invalid Identity!"));
         return ValidationResponse
                 .builder()
+                .userId(customer.getCustomerId())
                 .message(VALIDATION_SUCCESS.getMessage())
                 .status(VALIDATION_SUCCESS.getStatus())
                 .error(null)

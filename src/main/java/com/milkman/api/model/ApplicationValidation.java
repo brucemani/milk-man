@@ -47,6 +47,8 @@ public class ApplicationValidation implements Serializable {
 
     private String token;
 
+    private String identity;
+
     @Convert(converter = LocalDateTimeConverter.class)
     private String expireTime;
 

@@ -2,7 +2,6 @@ package com.milkman.api.security;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.*;
 import com.google.gson.Gson;
 import com.milkman.api.dto.AuthRequest;
 import com.milkman.api.dto.AuthResponse;
@@ -16,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -64,82 +64,65 @@ public class JwtRepository {
     }
 
     private final Function<String, TokenInfo> isValidToken = (bearerToke) -> {
-        try {
-            if (bearerToke == null || bearerToke.isEmpty()) {
-                log.error("Jwt token missing!");
-                throw new NullPointerException("Jwt token missing!");
-            }
-            if (!bearerToke.startsWith(BEARER)) {
-                log.error("Bearer key word missing in the token!");
-                throw new NullPointerException("Bearer key word missing in the token!");
-            }
-            final String token = bearerToke.substring(BEARER.length());
-            final Algorithm algorithm = HMAC256(secret.getBytes(UTF_8));
-            final JWTVerifier verifier = require(algorithm).build();
-            final TokenInfo tokenInfo = new Gson().fromJson(verifier.verify(token).getSubject(), TokenInfo.class);
-            final UserDetails userDetails = customUserDetailsService.loadUserByUsername(tokenInfo.getUserName());
-            if (userDetails.getUsername() != null && !userDetails.getUsername().isEmpty() && userDetails.getUsername().equalsIgnoreCase(tokenInfo.getUserName())) {
-                tokenInfo.setUserDetails(userDetails);
-                return tokenInfo;
-            }
-            log.error("Invalid user access!");
-            throw new RuntimeException("Invalid user access!");
-        } catch (AlgorithmMismatchException | SignatureVerificationException | TokenExpiredException |
-                 MissingClaimException | IncorrectClaimException ex) {
-            log.error(ex.getLocalizedMessage());
-            throw new RuntimeException(ex.getLocalizedMessage());
+        if (bearerToke == null || bearerToke.isEmpty()) {
+            log.error("Jwt token missing!");
+            throw new BadCredentialsException("Jwt token missing!");
         }
+        if (!bearerToke.startsWith(BEARER)) {
+            log.error("Bearer key word missing in the token!");
+            throw new BadCredentialsException("Bearer key word missing in the token!");
+        }
+        final String token = bearerToke.substring(BEARER.length());
+        final Algorithm algorithm = HMAC256(secret.getBytes(UTF_8));
+        final JWTVerifier verifier = require(algorithm).build();
+        final TokenInfo tokenInfo = new Gson().fromJson(verifier.verify(token).getSubject(), TokenInfo.class);
+        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(tokenInfo.getUserName());
+        if (userDetails.getUsername() != null && !userDetails.getUsername().isEmpty() && userDetails.getUsername().equalsIgnoreCase(tokenInfo.getUserName())) {
+            tokenInfo.setUserDetails(userDetails);
+            return tokenInfo;
+        }
+        log.error("Invalid user access!");
+        throw new RuntimeException("Invalid user access!");
     };
     public final Function<String, TokenInfo> extractTokenInfo = (token) -> {
-        try {
-            if (token == null || token.isEmpty()) {
-                log.error("Authorization token missing!");
-                throw new NullPointerException("Authorization token missing!");
-            }
-            return this.isValidToken.apply(token);
-        } catch (Exception ex) {
-            log.error(ex.getMessage());
-            throw new RuntimeException(ex.getMessage());
+        if (token == null || token.isEmpty()) {
+            log.error("Authorization token missing!");
+            throw new NullPointerException("Authorization token missing!");
         }
+        return this.isValidToken.apply(token);
     };
 
 
     public final Function<AuthRequest, AuthResponse> generateAccessToken = (req) -> {
-        try {
-            final Customer customer = this.customerService.findCustomerByEmail(req.getUserName()).orElseGet(Customer::new);
-            final Role role = this.roleService.findRoleByCustomerId(customer.getCustomerId()).orElseGet(Role::new);
-            if (customer.getCustomerEmail() == null || customer.getCustomerEmail().isEmpty()) {
-                log.error("Incorrect user name!");
-                throw new RuntimeException("Incorrect user name!");
-            }
-            if (!checkpw(req.getPassword(), customer.getCustomerPassword())) {
-                log.error("Incorrect password!");
-                throw new RuntimeException("Incorrect password!");
-            }
-            final Set<String> roles = role.getRoleList().stream().filter(Objects::nonNull).collect(toSet());
-            final TokenInfo userInfo = TokenInfo.builder().provider(req.getRequest().getServletPath()).userName(customer.getCustomerEmail()).roles(roles).build();
-            final Algorithm algorithm = HMAC256(secret);
-            final Date access_token_expire = getAccessTokenExpire();
-            final Date refresh_token_expire = getRefreshTokenExpire();
-            final List<String> privilegeList = role.getPrivilegeList().stream().map(Privilege::name).toList();
-            final String access_token = create()
-                    .withSubject(new Gson().toJson(userInfo))
-                    .withIssuedAt(new Date())
-                    .withExpiresAt(access_token_expire)
-                    .withIssuer(req.getRequest().getRequestURL().toString())
-                    .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
-            final String refresh_token = create()
-                    .withSubject(new Gson().toJson(userInfo))
-                    .withIssuedAt(new Date())
-                    .withExpiresAt(refresh_token_expire)
-                    .withIssuer(req.getRequest().getRequestURL().toString())
-                    .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
-            return AuthResponse.builder().userId(customer.getCustomerId()).role(new ArrayList<>(roles)).privilege(privilegeList).userName(customer.getCustomerEmail()).message("Authenticate successful").accessToken(BEARER.concat(access_token)).refreshToken(BEARER.concat(refresh_token)).createAt(now().toString()).expireDate(access_token_expire.toString()).build();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error(ex.getMessage());
-            throw new RuntimeException(ex.getMessage());
+        final Customer customer = this.customerService.findCustomerByEmail(req.getUserName()).orElseGet(Customer::new);
+        final Role role = this.roleService.findRoleByCustomerId(customer.getCustomerId()).orElseGet(Role::new);
+        if (customer.getCustomerEmail() == null || customer.getCustomerEmail().isEmpty()) {
+            log.error("Incorrect user name!");
+            throw new BadCredentialsException("Incorrect user name!");
         }
+        if (!checkpw(req.getPassword(), customer.getCustomerPassword())) {
+            log.error("Incorrect password!");
+            throw new BadCredentialsException("Incorrect password!");
+        }
+        final Set<String> roles = role.getRoleList().stream().filter(Objects::nonNull).collect(toSet());
+        final TokenInfo userInfo = TokenInfo.builder().provider(req.getRequest().getServletPath()).userName(customer.getCustomerEmail()).roles(roles).build();
+        final Algorithm algorithm = HMAC256(secret);
+        final Date access_token_expire = getAccessTokenExpire();
+        final Date refresh_token_expire = getRefreshTokenExpire();
+        final List<String> privilegeList = role.getPrivilegeList().stream().map(Privilege::name).toList();
+        final String access_token = create()
+                .withSubject(new Gson().toJson(userInfo))
+                .withIssuedAt(new Date())
+                .withExpiresAt(access_token_expire)
+                .withIssuer(req.getRequest().getRequestURL().toString())
+                .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
+        final String refresh_token = create()
+                .withSubject(new Gson().toJson(userInfo))
+                .withIssuedAt(new Date())
+                .withExpiresAt(refresh_token_expire)
+                .withIssuer(req.getRequest().getRequestURL().toString())
+                .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
+        return AuthResponse.builder().userId(customer.getCustomerId()).role(new ArrayList<>(roles)).privilege(privilegeList).userName(customer.getCustomerEmail()).message("Authenticate successful").accessToken(BEARER.concat(access_token)).refreshToken(BEARER.concat(refresh_token)).createAt(now().toString()).expireDate(access_token_expire.toString()).build();
     };
 
     public final BiFunction<AuthResponse, HttpServletRequest, AuthResponse> refreshToken = (auth, req) -> {
@@ -166,6 +149,4 @@ public class JwtRepository {
                 .withClaim("roles", new ArrayList<>(roles)).sign(algorithm);
         return AuthResponse.builder().userId(customer.getCustomerId()).role(new ArrayList<>(roles)).privilege(privilegeList).userName(customer.getCustomerEmail()).message("Authenticate successful").accessToken(BEARER.concat(access_token)).refreshToken(BEARER.concat(refresh_token)).createAt(now().toString()).expireDate(access_token_expire.toString()).build();
     };
-
-
 }
