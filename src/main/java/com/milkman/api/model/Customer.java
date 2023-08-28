@@ -49,7 +49,6 @@ public class Customer implements Serializable {
     private String customerPassword;
     @NotNull(message = "Customer mobile shouldn't be null or empty!")
     private String customerMobile;
-    private Long roleId;
     private Double ratePerLit;
     @Enumerated(ORDINAL)
     private Gender gender;
