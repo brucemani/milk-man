@@ -5,6 +5,7 @@ import com.milkman.api.model.Role;
 import com.milkman.api.repository.CustomerRepository;
 import com.milkman.api.services.service.CustomerService;
 import com.milkman.api.services.service.RoleService;
+import com.milkman.api.util.common.CommonUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @AllArgsConstructor
 @Transactional
-public class CustomerServiceImpl implements CustomerService {
+public class CustomerServiceImpl extends CommonUtil implements CustomerService {
 
     private final CustomerRepository repository;
     private final RoleService roleService;
@@ -97,5 +98,14 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setCustomerPassword(passwordEncoder.encode(newPassword));
         this.updateById(customer);
         log.info("Password updated.");
+    }
+
+    @Override
+    public String readUserProfile(@NonNull Long customerId) {
+        final Customer findCustomer = this.findById(customerId).orElseThrow(() -> new NullPointerException("Customer doesn't exist!"));
+        if (findCustomer.getProfile() != null) {
+            return imageToBase64.apply(findCustomer.getProfile());
+        }
+        return null;
     }
 }

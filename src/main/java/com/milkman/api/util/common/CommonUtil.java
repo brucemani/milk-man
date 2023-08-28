@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 import static com.milkman.api.util.enums.DateFormatPatterns.LOCAL_DATE;
 import static java.lang.Character.*;
 import static java.time.ZoneId.systemDefault;
+import static java.util.Base64.getEncoder;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
@@ -117,6 +118,9 @@ public class CommonUtil {
         }
         return arr.length > 7 && isSpecialChar && isDigit && isCapitalChar && isSmallChar;
     };
+
+
+    public final Function<byte[],String> imageToBase64= arr -> getEncoder().encodeToString(arr);
 
     public final BiConsumer<PasswordRequest, Customer> validatePassword = (req, cus) -> {
         if (!req.getNewPassword().equalsIgnoreCase(req.getConfirmPassword())) {

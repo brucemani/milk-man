@@ -2,7 +2,6 @@ package com.milkman.api.model;
 
 import com.milkman.api.util.enums.Gender;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -58,6 +57,10 @@ public class Customer implements Serializable {
     private Address address;
     private Boolean isAccountActive=false;
     private Boolean isUseDefaultPass;
+
+    @Lob
+    private byte[] profile;
+
     @CreatedDate
     private Date createDate;
     @LastModifiedDate

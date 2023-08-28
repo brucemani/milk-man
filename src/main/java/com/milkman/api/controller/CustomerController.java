@@ -66,15 +66,20 @@ public class CustomerController {
         return ok(makeResponse(null, DELETE.getStatus(), DELETE.getMessage()));
     }
 
+    @GetMapping(path = "/{id}",produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBuilder> readProfile(@PathVariable("id") Long id){
+        return ok(makeResponse(this.customerService.readUserProfile(id), FOUND.getStatus(), FOUND.getMessage()));
+    }
+
     @PostMapping(path = "/test", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> send(@RequestBody MailSenderRequestBuilder builder) {
         builder.setTemplate(OTP);
-        return ok(makeResponse(mailSenderService.sendMail(builder), SUCCESS.getStatus(), SUCCESS.getMessage()));
+        return ok(makeResponse(mailSenderService.sendMail(builder), FOUND.getStatus(), FOUND.getMessage()));
     }
 
     @PostMapping(path = "/build", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> buildUrl(@RequestBody @NonNull @Valid UrlRequestBuilder request) {
-        return ok(makeResponse(Map.of("url", commonUtil.urlBuilder.apply(request)), SUCCESS.getStatus(), SUCCESS.getMessage()));
+        return ok(makeResponse(Map.of("url", commonUtil.urlBuilder.apply(request)), FOUND.getStatus(), FOUND.getMessage()));
 //        System.out.println(commonUtil.);
 //        return ok("success");
     }

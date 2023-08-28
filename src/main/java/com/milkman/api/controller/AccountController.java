@@ -4,7 +4,6 @@ import com.milkman.api.dto.AccountRequestBuilder;
 import com.milkman.api.dto.ResponseBuilder;
 import com.milkman.api.model.Account;
 import com.milkman.api.services.service.AccountService;
-import com.milkman.api.util.enums.Status;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import static com.milkman.api.util.enums.ResponseHandler.makeResponse;
+import static com.milkman.api.util.enums.Status.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -31,18 +31,18 @@ public class AccountController {
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> createAccount(@RequestBody @NonNull @Valid Account account) {
-        return ok(makeResponse(accountService.save(account), Status.CREATED.getStatus(), Status.CREATED.getMessage()));
+        return ok(makeResponse(accountService.save(account), CREATED.getStatus(), CREATED.getMessage()));
     }
 
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> updateAccount(@RequestBody @NonNull @Valid Account account) {
-        return ok(makeResponse(accountService.updateById(account), Status.SUCCESS.getStatus(), Status.SUCCESS.getMessage()));
+        return ok(makeResponse(accountService.updateById(account), UPDATE.getStatus(), UPDATE.getMessage()));
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> findTodayAccount(@RequestParam @NonNull Long id, @NonNull String from, @NonNull String to) {
-        return ok(makeResponse(accountService.hasAlreadyEntry(AccountRequestBuilder.builder().customerId(id).from(from).to(to).build()), Status.SUCCESS.getStatus(), Status.SUCCESS.getMessage()));
+        return ok(makeResponse(accountService.hasAlreadyEntry(AccountRequestBuilder.builder().customerId(id).from(from).to(to).build()), FOUND.getStatus(), FOUND.getMessage()));
     }
 
 }

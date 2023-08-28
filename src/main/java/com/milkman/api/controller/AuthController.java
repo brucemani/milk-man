@@ -14,8 +14,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import static com.milkman.api.util.enums.ResponseHandler.makeResponse;
-import static com.milkman.api.util.enums.Status.CREATED;
-import static com.milkman.api.util.enums.Status.SUCCESS;
+import static com.milkman.api.util.enums.Status.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -46,7 +45,7 @@ public class AuthController {
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> refreshToken(@RequestBody @Valid @NonNull AuthResponse req, HttpServletRequest request) {
-        return ok(makeResponse(authService.refreshToken(req, request), SUCCESS.getStatus(), SUCCESS.getMessage()));
+        return ok(makeResponse(authService.refreshToken(req, request), UPDATE.getStatus(), UPDATE.getMessage()));
     }
 
 //    @PostMapping(path = "/forgot",consumes = APPLICATION_JSON_VALUE,produces = APPLICATION_JSON_VALUE)
