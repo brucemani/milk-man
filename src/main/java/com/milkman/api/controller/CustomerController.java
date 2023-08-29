@@ -81,7 +81,7 @@ public class CustomerController {
 
     @GetMapping(path = "/profile/{id}", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> readProfile(@PathVariable("id") Long id) {
-        return ok(makeResponse(this.customerService.readUserProfile(id), FOUND.getStatus(), FOUND.getMessage()));
+        return ok(makeResponse(Map.of("profile",this.customerService.readUserProfile(id)), FOUND.getStatus(), FOUND.getMessage()));
     }
 
     @PostMapping(path = "/test", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
