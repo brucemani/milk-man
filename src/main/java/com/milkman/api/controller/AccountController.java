@@ -41,8 +41,9 @@ public class AccountController {
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> findTodayAccount(@RequestParam @NonNull Long id, @NonNull String from, @NonNull String to) {
-        return ok(makeResponse(accountService.hasAlreadyEntry(AccountRequestBuilder.builder().customerId(id).from(from).to(to).build()), FOUND.getStatus(), FOUND.getMessage()));
+    public ResponseEntity<ResponseBuilder> findAllAccount(@RequestParam @NonNull Long id, @NonNull String from, @NonNull String to) {
+        return ok(makeResponse(accountService.findAllAccountByDate(AccountRequestBuilder.builder().customerId(id).from(from).to(to).build()), FOUND.getStatus(), FOUND.getMessage()));
     }
+
 
 }
