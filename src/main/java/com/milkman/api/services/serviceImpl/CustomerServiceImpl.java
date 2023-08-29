@@ -108,4 +108,11 @@ public class CustomerServiceImpl extends CommonUtil implements CustomerService {
         }
         return null;
     }
+
+    @Override
+    public void updateUserProfile(@NonNull Customer customer) {
+        requireNonNull(customer.getCustomerId(), "Customer id shouldn't null");
+        requireNonNull(customer.getProfile(), "Profile image shouldn't null");
+        this.repository.updateCustomerProfileByCustomerId(customer.getProfile(),customer.getCustomerId());
+    }
 }

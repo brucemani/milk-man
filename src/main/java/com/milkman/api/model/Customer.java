@@ -33,6 +33,7 @@ import static jakarta.persistence.EnumType.ORDINAL;
 @Entity(name = "CUSTOMER")
 @DynamicInsert
 @DynamicUpdate
+@Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Customer implements Serializable {
     @Serial

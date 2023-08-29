@@ -15,4 +15,5 @@ public interface CustomerService extends CommonService<Customer,Long>{
     Optional<Customer> findCustomerByEmail(String email);
     void updatePassword(Long userId, String newPassword);
     String readUserProfile(Long customerId);
+    void updateUserProfile(Customer customer);
 }

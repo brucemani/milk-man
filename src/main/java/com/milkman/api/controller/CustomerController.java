@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import static com.milkman.api.util.enums.MailTemplate.OTP;
 import static com.milkman.api.util.enums.ResponseHandler.makeResponse;
 import static com.milkman.api.util.enums.Status.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
 /**
@@ -60,14 +62,25 @@ public class CustomerController {
         return ok(makeResponse(customerService.updateById(customer), UPDATE.getStatus(), UPDATE.getMessage()));
     }
 
+    @PutMapping(path = "/profile/{id}", consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBuilder> updateProfile(@PathVariable("id") Long id, @RequestParam("file") @NonNull MultipartFile profile) {
+        try {
+            customerService.updateUserProfile(Customer.builder().customerId(id).profile(profile.getBytes()).build());
+            return ok(makeResponse(null, UPDATE.getStatus(), UPDATE.getMessage()));
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
     @DeleteMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBuilder> deleteCustomer(@RequestParam @NonNull Long id) {
         customerService.deleteById(id);
         return ok(makeResponse(null, DELETE.getStatus(), DELETE.getMessage()));
     }
 
-    @GetMapping(path = "/{id}",produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> readProfile(@PathVariable("id") Long id){
+    @GetMapping(path = "/profile/{id}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBuilder> readProfile(@PathVariable("id") Long id) {
         return ok(makeResponse(this.customerService.readUserProfile(id), FOUND.getStatus(), FOUND.getMessage()));
     }
 

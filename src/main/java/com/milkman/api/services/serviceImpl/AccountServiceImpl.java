@@ -73,6 +73,9 @@ public class AccountServiceImpl extends CommonUtil implements AccountService {
     @Override
     public Account hasAlreadyEntry(AccountRequestBuilder requestBuilder) {
         final List<Account> result = this.repository.findAllByCustomerIdAndCreateDateBetween(requestBuilder.getCustomerId(), utilDateConvertor.apply(requestBuilder.getFrom()), utilDateConvertor.apply(requestBuilder.getTo()));
+        if(result.isEmpty()){
+            return new Account();
+        }
         if (result.size() == 1) {
             return result.get(0);
         }
