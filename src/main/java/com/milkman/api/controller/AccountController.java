@@ -11,8 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static com.milkman.api.util.enums.ResponseHandler.makeResponse;
 import static com.milkman.api.util.enums.Status.*;
+import static java.lang.Long.parseLong;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -41,8 +44,8 @@ public class AccountController {
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> findAllAccount(@RequestParam @NonNull Long id, @NonNull String from, @NonNull String to) {
-        return ok(makeResponse(accountService.findAllAccountByDate(AccountRequestBuilder.builder().customerId(id).from(from).to(to).build()), FOUND.getStatus(), FOUND.getMessage()));
+    public ResponseEntity<ResponseBuilder> findAllAccount(@RequestParam @NonNull Map<String, String> request) {
+        return ok(makeResponse(accountService.findAllAccountByDate(AccountRequestBuilder.builder().customerId(parseLong(request.get("id"))).from(request.get("from")).to(request.get("to")).build()), FOUND.getStatus(), FOUND.getMessage()));
     }
 
 

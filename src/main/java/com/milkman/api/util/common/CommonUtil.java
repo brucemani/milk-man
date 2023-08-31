@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -17,7 +16,9 @@ import java.util.function.Supplier;
 
 import static com.milkman.api.util.enums.DateFormatPatterns.LOCAL_DATE;
 import static java.lang.Character.*;
+import static java.time.LocalDate.parse;
 import static java.time.ZoneId.systemDefault;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Base64.getEncoder;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -79,9 +80,9 @@ public class CommonUtil {
 
     public final Supplier<String> generateToken = () -> randomUUID().toString().replace("-", "");
 
-    public final Function<String, Date> utilDateConvertor = date -> {
+    public final Function<String, LocalDate> utilDateConvertor = date -> {
         try {
-            return new SimpleDateFormat(LOCAL_DATE.getPattern()).parse(date);
+            return parse(date, ofPattern(LOCAL_DATE.getPattern()));
         } catch (Exception ex) {
             log.error(ex.getMessage());
             ex.printStackTrace();

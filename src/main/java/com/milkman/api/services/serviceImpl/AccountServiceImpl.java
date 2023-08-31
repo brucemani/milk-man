@@ -59,7 +59,7 @@ public class AccountServiceImpl extends CommonUtil implements AccountService {
 
     @Override
     public List<Account> findAllAccountByDate(@NonNull final AccountRequestBuilder request) {
-        return this.repository.findAllByCreateDateBetweenOrderByCreateDate(utilDateConvertor.apply(request.getFrom()), utilDateConvertor.apply(request.getTo()));
+        return this.repository.findAllByCreateDateBetweenOrderByCreateDate(request.getCustomerId(), utilDateConvertor.apply(request.getFrom()), utilDateConvertor.apply(request.getTo()));
     }
 
 
@@ -71,9 +71,9 @@ public class AccountServiceImpl extends CommonUtil implements AccountService {
     }
 
     @Override
-    public Account hasAlreadyEntry(AccountRequestBuilder requestBuilder) {
+    public Account hasAlreadyEntry(@NonNull AccountRequestBuilder requestBuilder) {
         final List<Account> result = this.repository.findAllByCustomerIdAndCreateDateBetween(requestBuilder.getCustomerId(), utilDateConvertor.apply(requestBuilder.getFrom()), utilDateConvertor.apply(requestBuilder.getTo()));
-        if(result.isEmpty()){
+        if (result.isEmpty()) {
             return new Account();
         }
         if (result.size() == 1) {
