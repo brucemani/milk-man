@@ -33,18 +33,18 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> createAccount(@RequestBody @NonNull @Valid Account account) {
+    public ResponseEntity<ResponseBuilder> createAccount(@RequestBody @NonNull @Valid final Account account) {
         return ok(makeResponse(accountService.save(account), CREATED.getStatus(), CREATED.getMessage()));
     }
 
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> updateAccount(@RequestBody @NonNull @Valid Account account) {
+    public ResponseEntity<ResponseBuilder> updateAccount(@RequestBody @NonNull @Valid final Account account) {
         return ok(makeResponse(accountService.updateById(account), UPDATE.getStatus(), UPDATE.getMessage()));
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> findAllAccount(@RequestParam @NonNull Map<String, String> request) {
+    public ResponseEntity<ResponseBuilder> findAllAccount(@RequestParam @NonNull final Map<String, String> request) {
         return ok(makeResponse(accountService.findAllAccountByDate(AccountRequestBuilder.builder().customerId(parseLong(request.get("id"))).from(request.get("from")).to(request.get("to")).build()), FOUND.getStatus(), FOUND.getMessage()));
     }
 

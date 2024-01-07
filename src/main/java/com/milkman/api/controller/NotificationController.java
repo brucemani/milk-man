@@ -30,27 +30,27 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> createNotification(@RequestBody @NonNull @Valid Notification notification) {
+    public ResponseEntity<ResponseBuilder> createNotification(@RequestBody @NonNull @Valid final Notification notification) {
         return ok(makeResponse(this.notificationService.save(notification), CREATED.getStatus(), CREATED.getMessage()));
     }
 
     @GetMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> findNotification(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponseBuilder> findNotification(@PathVariable("id") final Long id) {
         return ok(makeResponse(this.notificationService.findById(id), FOUND.getStatus(), FOUND.getMessage()));
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> findAllUnReadNotification(@RequestParam("id") Long id) {
+    public ResponseEntity<ResponseBuilder> findAllUnReadNotification(@RequestParam("id") final Long id) {
         return ok(makeResponse(this.notificationService.findUnSeenNotification(id), FOUND.getStatus(), FOUND.getMessage()));
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> updateNotification(@RequestBody @NonNull @Valid Notification notification) {
+    public ResponseEntity<ResponseBuilder> updateNotification(@RequestBody @NonNull @Valid final Notification notification) {
         return ok(makeResponse(this.notificationService.updateById(notification), UPDATE.getStatus(), UPDATE.getMessage()));
     }
 
     @DeleteMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> deleteNotification(@PathVariable("id") @NonNull Long id) {
+    public ResponseEntity<ResponseBuilder> deleteNotification(@PathVariable("id") @NonNull final Long id) {
         this.notificationService.deleteById(id);
         return ok(makeResponse(null, DELETE.getStatus(), DELETE.getMessage()));
     }

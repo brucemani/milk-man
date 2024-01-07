@@ -23,5 +23,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findAllByCreateDateBetweenOrderByCreateDate(@NonNull final Long id, @NonNull final LocalDate fromDate, @NonNull final LocalDate toDate);
 
     @Query("SELECT acc FROM ACCOUNT acc WHERE acc.customerId=?1 AND DATE(acc.createDate) BETWEEN DATE(?2) AND DATE(?3)")
-    List<Account> findAllByCustomerIdAndCreateDateBetween(final @NotNull(message = "Customer ID shouldn't be null or empty.") Long customerId, final LocalDate fromDate, final LocalDate toDate);
+    List<Account> findAllByCustomerIdAndCreateDateBetween(@NonNull final Long customerId, @NonNull final LocalDate fromDate, @NonNull final LocalDate toDate);
 }

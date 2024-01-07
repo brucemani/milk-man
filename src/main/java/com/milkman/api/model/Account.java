@@ -31,6 +31,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
 public class Account implements Serializable {
+    
     @Serial
     private static final long serialVersionUID = 10L;
 

@@ -4,6 +4,7 @@ import com.milkman.api.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -16,11 +17,9 @@ import java.util.Optional;
  */
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    Integer countCustomersByCustomerEmail(String email);
+    Integer countCustomersByCustomerEmail(@NonNull final String email);
 
-    Optional<Customer> findByCustomerEmail(String email);
+    Optional<Customer> findByCustomerEmail(@NonNull final String email);
 
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE CUSTOMER SET profile=?1 WHERE customerId=?2")
-    void updateCustomerProfileByCustomerId(final byte[] arr,final Long customerId);
+    Customer updateCustomerByProfileAndCustomerId(@NonNull final byte[] arr, @NonNull final Long customerId);
 }

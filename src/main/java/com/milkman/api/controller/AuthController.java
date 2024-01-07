@@ -33,18 +33,18 @@ public class AuthController {
     private final CustomerService customerService;
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> authenticate(@RequestParam @NonNull String username, @NonNull String password, HttpServletRequest request) {
+    public ResponseEntity<ResponseBuilder> authenticate(@RequestParam @NonNull final String username, @NonNull final String password, final HttpServletRequest request) {
         final AuthResponse authResponse = authService.login(AuthRequest.builder().userName(username).password(password).request(request).build());
         return ok(makeResponse(authResponse, SUCCESS.getStatus(), SUCCESS.getMessage()));
     }
 
     @PostMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> register(@RequestBody @Valid @NonNull Customer customer) {
+    public ResponseEntity<ResponseBuilder> register(@RequestBody @Valid @NonNull final Customer customer) {
         return ok(makeResponse(customerService.save(customer), CREATED.getStatus(), CREATED.getMessage()));
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> refreshToken(@RequestBody @Valid @NonNull AuthResponse req, HttpServletRequest request) {
+    public ResponseEntity<ResponseBuilder> refreshToken(@RequestBody @Valid @NonNull final AuthResponse req, final HttpServletRequest request) {
         return ok(makeResponse(authService.refreshToken(req, request), UPDATE.getStatus(), UPDATE.getMessage()));
     }
 

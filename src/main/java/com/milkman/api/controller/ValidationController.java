@@ -25,26 +25,27 @@ import static org.springframework.http.ResponseEntity.ok;
 public class ValidationController {
 
     private final ApplicationValidationService validationService;
+
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> verifyOtp(@RequestBody ValidationRequestBuilder request) {
+    public ResponseEntity<ResponseBuilder> verifyOtp(@RequestBody final ValidationRequestBuilder request) {
         return ok(makeResponse(validationService.otpValidation(request), VALIDATION_SUCCESS.getStatus(), VALIDATION_SUCCESS.getMessage()));
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> verifyToken(@RequestParam String token) {
+    public ResponseEntity<ResponseBuilder> verifyToken(@RequestParam final String token) {
         return ok(makeResponse(validationService.tokenValidation(token), VALIDATION_SUCCESS.getStatus(), VALIDATION_SUCCESS.getMessage()));
     }
 
-    @PostMapping(path = "/testOtp",consumes = APPLICATION_JSON_VALUE,produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> testOtp(@RequestBody ValidationRequestBuilder req){
-        this.validationService.sendOtp(req.getEmail(),req.getMobileNumber());
-        return ok(makeResponse(null, SUCCESS.getStatus() ,SUCCESS.getMessage()));
+    @PostMapping(path = "/testOtp", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBuilder> testOtp(@RequestBody final ValidationRequestBuilder req) {
+        this.validationService.sendOtp(req.getEmail(), req.getMobileNumber());
+        return ok(makeResponse(null, SUCCESS.getStatus(), SUCCESS.getMessage()));
     }
 
-    @PostMapping(path = "/testToken",consumes = APPLICATION_JSON_VALUE,produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseBuilder> testToken(@RequestBody ValidationRequestBuilder req){
+    @PostMapping(path = "/testToken", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBuilder> testToken(@RequestBody final ValidationRequestBuilder req) {
         this.validationService.sendValidationLink(req.getEmail());
-        return ok(makeResponse(null, SUCCESS.getStatus(),SUCCESS.getMessage()));
+        return ok(makeResponse(null, SUCCESS.getStatus(), SUCCESS.getMessage()));
     }
 
 }

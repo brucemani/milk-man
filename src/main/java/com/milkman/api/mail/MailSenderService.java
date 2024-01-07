@@ -2,6 +2,7 @@ package com.milkman.api.mail;
 
 import com.milkman.api.dto.MailSenderRequestBuilder;
 import com.milkman.api.dto.MailSenderResponseBuilder;
+import org.springframework.lang.NonNull;
 
 /**
  * @Author: kchid
@@ -10,5 +11,5 @@ import com.milkman.api.dto.MailSenderResponseBuilder;
  * @Time: 9:28 PM
  */
 public interface MailSenderService {
-    MailSenderResponseBuilder sendMail(MailSenderRequestBuilder request);
+    MailSenderResponseBuilder sendMail(final MailSenderRequestBuilder request);
 }

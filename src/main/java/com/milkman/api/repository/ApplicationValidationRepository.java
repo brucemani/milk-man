@@ -2,6 +2,7 @@ package com.milkman.api.repository;
 
 import com.milkman.api.model.ApplicationValidation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -14,7 +15,8 @@ import java.util.Optional;
  */
 @Repository
 public interface ApplicationValidationRepository extends JpaRepository<ApplicationValidation, Long> {
-    Optional<ApplicationValidation> findByMobileNumberAndOtp(String mobileNumber, Long otp);
-    Optional<ApplicationValidation> findByToken(String token);
+    Optional<ApplicationValidation> findByMobileNumberAndOtp(@NonNull final String mobileNumber, @NonNull final Long otp);
+
+    Optional<ApplicationValidation> findByToken(@NonNull final String token);
 
 }

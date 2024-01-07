@@ -14,5 +14,5 @@ import java.util.List;
  */
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
 
-    List<Notification> findAllByCustomerIdAndIsRead(@NonNull Long customerId,@NonNull Boolean isRead);
+    List<Notification> findAllByCustomerIdAndIsRead(@NonNull final Long customerId,@NonNull final Boolean isRead);
 }

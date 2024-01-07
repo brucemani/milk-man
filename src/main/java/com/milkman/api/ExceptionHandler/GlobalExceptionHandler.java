@@ -30,7 +30,6 @@ import static org.springframework.http.ResponseEntity.status;
 public class GlobalExceptionHandler {
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<ResponseBuilder> runtimeException(RuntimeException exception) {
-        exception.printStackTrace();
         return status(INTERNAL_SERVER_ERROR).body(makeResponse(null, INTERNAL_SERVER_ERROR.value(), exception.getMessage(), exception.getMessage()));
     }
 
