@@ -13,6 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import static com.milkman.api.util.enums.DateFormatPatterns.LOCAL_DATE;
 import static java.lang.Character.*;
@@ -23,6 +24,7 @@ import static java.util.Base64.getEncoder;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
+import static java.util.regex.Pattern.compile;
 import static java.util.stream.LongStream.range;
 import static org.springframework.security.crypto.bcrypt.BCrypt.checkpw;
 
@@ -45,6 +47,7 @@ public class CommonUtil {
 
     @Value("${app.otpLen}")
     private Integer otpLen;
+    private static final String PASSWORD_STRENGTH_REGEX="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
 
     @Value("${app.otpExpire}")
     public Integer otpExpire;
@@ -93,32 +96,7 @@ public class CommonUtil {
     public final Function<Date, LocalDate> dateToLocalDate = date -> date.toInstant().atZone(systemDefault()).toLocalDate();
 
 
-    private final Predicate<String> passwordStrengthChecker = pass -> {
-        boolean isSpecialChar = false;
-        boolean isCapitalChar = false;
-        boolean isSmallChar = false;
-        boolean isDigit = false;
-        final char[] arr = pass.toCharArray();
-        for (char c : arr) {
-            if (PASSWORD_STRENGTH_CHECK_LIST.contains(c)) {
-                isSpecialChar = true;
-                continue;
-            }
-            if (isDigit(c)) {
-                isDigit = true;
-                continue;
-            }
-            if (isUpperCase(c)) {
-                isCapitalChar = true;
-
-                continue;
-            }
-            if (isLowerCase(c)) {
-                isSmallChar = true;
-            }
-        }
-        return arr.length > 7 && isSpecialChar && isDigit && isCapitalChar && isSmallChar;
-    };
+    private final Predicate<String> passwordStrengthChecker = pass -> compile(PASSWORD_STRENGTH_REGEX).matcher(pass).matches();
 
 
     public final Function<byte[],String> imageToBase64= arr -> getEncoder().encodeToString(arr);
