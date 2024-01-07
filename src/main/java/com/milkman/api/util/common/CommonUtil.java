@@ -39,15 +39,13 @@ import static org.springframework.security.crypto.bcrypt.BCrypt.checkpw;
 public class CommonUtil {
     public static final String MOBILE_REGEX = "^(?:(?:\\+|0{0,2})91(\\s*[\\-]\\s*)?|[0]?)?[789]\\d{9}$";
     public static final String OTP_REGEX = "(\\d{6})";
-
-    private static final List<Character> PASSWORD_STRENGTH_CHECK_LIST = Arrays.asList('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+');
     public static final String BEARER = "Bearer ";
     @Value("${app.baseUrl}")
     private String BASE;
 
     @Value("${app.otpLen}")
     private Integer otpLen;
-    private static final String PASSWORD_STRENGTH_REGEX="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+    private static final String PASSWORD_STRENGTH_REGEX = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
 
     @Value("${app.otpExpire}")
     public Integer otpExpire;
@@ -88,7 +86,6 @@ public class CommonUtil {
             return parse(date, ofPattern(LOCAL_DATE.getPattern()));
         } catch (Exception ex) {
             log.error(ex.getMessage());
-            ex.printStackTrace();
             throw new RuntimeException(ex.getMessage());
         }
     };
@@ -99,7 +96,7 @@ public class CommonUtil {
     private final Predicate<String> passwordStrengthChecker = pass -> compile(PASSWORD_STRENGTH_REGEX).matcher(pass).matches();
 
 
-    public final Function<byte[],String> imageToBase64= arr -> getEncoder().encodeToString(arr);
+    public final Function<byte[], String> imageToBase64 = arr -> getEncoder().encodeToString(arr);
 
     public final BiConsumer<PasswordRequest, Customer> validatePassword = (req, cus) -> {
         if (!req.getNewPassword().equalsIgnoreCase(req.getConfirmPassword())) {
